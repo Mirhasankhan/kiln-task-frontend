@@ -1,7 +1,5 @@
 import { Layout, Menu } from "antd";
-
 import { Link } from "react-router-dom";
-import logo from "../../assets/tree-plantation.jpg";
 import { sidebarItemsGenerator } from "../../utils/SidebarItemsGenerator";
 import { userPaths } from "../../routes/user.routes";
 
@@ -17,7 +15,7 @@ const Sidebar = () => {
       collapsedWidth="0"
       width={250}
       style={{
-        backgroundColor: "white",
+        backgroundColor: "blue",
         // overflow: "hidden",
       }}
     >
@@ -29,16 +27,15 @@ const Sidebar = () => {
           display: "flex",
           justifyContent: "left",
           alignItems: "center",
-          border: "0.2px dotted lightgray",
+          borderRight: "0.2px dotted lightgray",
         }}
       >
-        <Link to="/" className="flex items-center">
-          <img className="h-10 w-10 rounded-full" src={logo} alt="" />
+        <Link to="/" className="flex items-center justify-center">
           <h1
             style={{ fontFamily: "Poppins, sans-serif" }}
-            className="font-bold"
+            className="font-bold text-white pl-4"
           >
-            InfiniteMart
+            Brand Kiln Task
           </h1>
         </Link>
       </div>
@@ -48,7 +45,8 @@ const Sidebar = () => {
         defaultSelectedKeys={["4"]}
         items={sidebarItems}
         style={{
-          backgroundColor: "white",
+          backgroundColor: "blue",
+          fontSize: "16px",
         }}
       />
     </Sider>

@@ -16,7 +16,7 @@ const AddTask = () => {
   const [createNewTask] = useCreateTaskMutation();
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
     setDate(dateString);
-    console.log(date);
+    console.log(date, dateString);
   };
   const {
     register,
@@ -33,10 +33,10 @@ const AddTask = () => {
         status: "pending",
       };
       createNewTask(newTask);
-      toast.success("task created");
+      toast.success("Task created successfully");
       reset();
     } else {
-      toast.error("select a date");
+      toast.error("Please Select a date");
     }
   };
   return (
@@ -44,7 +44,7 @@ const AddTask = () => {
       <h1 className="text-3xl font-semibold pb-6 text-center">
         Create New Task
       </h1>
-      <div className="border p-4 rounded-md border-red-500">
+      <div className="border p-4 rounded-md border-blue-500">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -102,7 +102,7 @@ const AddTask = () => {
             </div>
             <div>
               <label className="block font-medium mb-1">Due Date</label>
-              <DatePicker className="w-full" onChange={onChange} />
+              <DatePicker className="w-full py-2" onChange={onChange} />
             </div>
           </div>
           <div>
@@ -122,7 +122,7 @@ const AddTask = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+            className="w-full bg-blue-500 font-semibold text-white py-2 rounded hover:bg-blue-600"
           >
             Create Task
           </button>

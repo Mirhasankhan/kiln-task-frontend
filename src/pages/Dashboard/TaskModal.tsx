@@ -60,7 +60,7 @@ const TaskModal = ({ task }: { task: TTask }) => {
         onCancel={handleCancel}
         footer={false}
       >
-        <div className="border p-4 rounded-md border-red-500">
+        <div className="border p-4 rounded-md border-blue-500">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -103,7 +103,7 @@ const TaskModal = ({ task }: { task: TTask }) => {
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+              className="w-full bg-blue-500 font-semibold text-white py-2 rounded hover:bg-blue-600"
             >
               Update Task
             </button>
