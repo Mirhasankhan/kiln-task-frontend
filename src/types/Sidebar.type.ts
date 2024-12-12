@@ -17,3 +17,13 @@ export type TRoute = {
   path: string;
   element: ReactNode;
 };
+
+export type TTask = {
+  dueDate: string;
+  _id: string;
+  name?: string;
+  email?: string;
+  title: string;
+  priority: string;
+  status: string;
+};

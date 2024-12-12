@@ -1,37 +1,46 @@
-import { useTasksQuery } from "../../redux/features/task/taskManagement.api";
-import { useState } from "react";
-import { Select } from "antd";
-import SingleTask from "./SingleTask";
-
-export type TTask = {
-  dueDate: string;
-  _id: string;
-  name: string;
-  email: string;
-  title: string;
-  description: string;
-  status: string;
-};
+import { useEffect, useState } from "react";
+import { Select, Table } from "antd";
+import { TTask } from "../../types/Sidebar.type";
+import { columns } from "../../utils/TableColumns";
+import useFetchTasks from "../../hooks/useFetchTasks";
 
 const ManageTask = () => {
-  const [searched, setSearched] = useState("");
+  const [search, setSearched] = useState("");
   const [status, setStatus] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const getTask = useFetchTasks();
   const handleChange = (value: string) => {
     setStatus(`${value}`);
   };
 
-  const { data: tasks, isLoading } = useTasksQuery({
-    search: searched,
-    status: status,
-  });
-  if (isLoading) {
-    return <p className="text-3xl text-center pt-24">Loading..........</p>;
-  }
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const data = await getTask(search, status);
+        setTasks(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchTasks();
+  }, [status, search]);
+
+  const tableData = tasks?.map(
+    ({ _id, title, priority, status, dueDate }: TTask) => ({
+      _id,
+      title,
+      priority,
+      dueDate,
+      status,
+    })
+  );
 
   return (
     <div>
       <div className="md:flex mb-4 justify-between items-center">
         <h1 className="text-3xl font-medium">Task Table</h1>
+
         <div className="flex gap-2 items-center">
           <input
             onChange={(e) => setSearched(e.target.value)}
@@ -45,37 +54,26 @@ const ManageTask = () => {
             style={{ width: 120 }}
             options={[
               { value: "", label: "All" },
-              { value: "pending", label: "Pending" },
-              { value: "completed", label: "Completed" },
+              { value: "Completed", label: "Completed" },
+              { value: "", label: "Not Completed" },
             ]}
           />
         </div>
       </div>
-      {tasks?.length > 0 ? (
-        <div className="overflow-x-auto table-zebra bg-white p-2">
-          <table className="table">
-            <thead className="bg-blue-500 text-white font-medium">
-              <tr>
-                <th>User Name</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Due Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks?.map((task: TTask) => (
-                <SingleTask task={task} key={task._id}></SingleTask>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <h1 className="text-center text-3xl pt-8 text-red-500">
-          No task found for this search!!!
-        </h1>
-      )}
+      <div>
+        {tasks?.length > 0 ? (
+          <Table
+            pagination={{ pageSize: 5 }}
+            loading={tasks.length > 0 ? false : true}
+            dataSource={tableData}
+            columns={columns}
+          />
+        ) : (
+          <p className="text-red-500 text-center pt-12 text-4xl">
+            No Task Found
+          </p>
+        )}
+      </div>
     </div>
   );
 };

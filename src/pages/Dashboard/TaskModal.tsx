@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { DatePicker, DatePickerProps, Modal } from "antd";
+import { DatePicker, Modal, Select } from "antd";
 import { FaEdit } from "react-icons/fa";
-import { TTask } from "./ManageTask";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { TTask } from "../../types/Sidebar.type";
+import { Form, Input, Button, notification, Switch } from "antd";
 import { FormData } from "./AddTask";
-import { useUpdateTaskMutation } from "../../redux/features/task/taskManagement.api";
+import axios from "axios";
+
+const { Option } = Select;
 
 const TaskModal = ({ task }: { task: TTask }) => {
-  const [date, setDate] = useState<any>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editTask] = useUpdateTaskMutation();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -24,30 +23,32 @@ const TaskModal = ({ task }: { task: TTask }) => {
     setIsModalOpen(false);
   };
 
-  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    setDate(dateString);
-    console.log(date);
-  };
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>();
-
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    if (date) {
-      const newTask = {
-        ...data,
-        dueDate: date,
-      };
-      editTask({ id: task._id, updates: newTask });
-      toast.success("Task Edited");
+  const onFinish = async (values: FormData) => {
+    const updatedTask = {
+      title: values.title,
+      priority: values.priority,
+      dueDate: values.dob.format("DD-MM-YYYY"),
+      status: values.status == true ? "Completed" : "Not completed",
+    };
+    try {
+      const response = await axios.put(
+        `https://kiln-task-backend.vercel.app/api/v1/tasks/${task._id}`,
+        { updates: updatedTask }
+      );
+      notification.success({
+        message: "Success",
+        description: "Task Edited!",
+      });
       setIsModalOpen(false);
-    } else {
-      toast.error("select a date");
+      return response.data;
+    } catch (err) {
+      notification.error({
+        message: "Error",
+        description: "Task Editing Failed!",
+      });
+      throw err;
     }
   };
-
   return (
     <>
       <button onClick={showModal}>
@@ -60,55 +61,76 @@ const TaskModal = ({ task }: { task: TTask }) => {
         onCancel={handleCancel}
         footer={false}
       >
-        <div className="border p-4 rounded-md border-blue-500">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium mb-1">Task Title</label>
-                <input
-                  defaultValue={task.title}
-                  type="text"
-                  {...register("title", {
-                    required: "title is required",
-                  })}
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                  placeholder="Enter task title"
-                />
-                {errors.title && (
-                  <p className="text-red-500 text-sm">
-                    {errors.title.message as string}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Due Date</label>
-                <DatePicker className="w-full" onChange={onChange} />
-              </div>
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Description</label>
-              <textarea
-                defaultValue={task.description}
-                {...register("description", {
-                  required: "description is required",
-                })}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                placeholder="Enter task description"
-              ></textarea>
-              {errors.description && (
-                <p className="text-red-500 text-sm">
-                  {errors.description.message as string}
-                </p>
-              )}
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-500 font-semibold text-white py-2 rounded hover:bg-blue-600"
+        <Form
+          className="border-2 rounded-md p-3"
+          name="basic"
+          initialValues={{
+            title: task.title,
+            priority: task.priority,
+            status: task.status,
+          }}
+          onFinish={onFinish}
+          autoComplete="off"
+          layout="vertical"
+        >
+          <div className="flex gap-6">
+            <Form.Item
+              className="w-full"
+              label="Task Title"
+              name="title"
+              rules={[
+                { required: true, message: "Please input your task title!" },
+              ]}
+            >
+              <Input placeholder="task title" />
+            </Form.Item>
+            <Form.Item
+              className="w-full"
+              label="Due Date"
+              name="dob"
+              rules={[{ required: true, message: "Please select due date" }]}
+            >
+              <DatePicker style={{ width: "100%" }} />
+            </Form.Item>
+          </div>
+
+          <div className="flex gap-6">
+            <Form.Item
+              className="w-full"
+              label="Priority"
+              name="priority"
+              rules={[
+                { required: true, message: "Please select task priority" },
+              ]}
+            >
+              <Select placeholder="Select priority">
+                <Option value="high">High</Option>
+                <Option value="medium">Medium</Option>
+                <Option value="low">Low</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
+              className="w-full"
+              label="Status"
+              name="status"
+              valuePropName={task.status == "Completed" ? "checked" : ""}
+            >
+              <Switch
+                checkedChildren="Completed"
+                unCheckedChildren="Not Completed"
+              />
+            </Form.Item>
+          </div>
+          <Form.Item>
+            <Button
+              className="w-full font-medium"
+              type="primary"
+              htmlType="submit"
             >
               Update Task
-            </button>
-          </form>
-        </div>
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   );

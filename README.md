@@ -9,9 +9,7 @@ Technology Used
 
 ```bash
 React
-Redux
 Tailwind
-sooner
 Antd
 
 ```

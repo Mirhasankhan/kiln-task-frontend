@@ -35,7 +35,7 @@ const Sidebar = () => {
             style={{ fontFamily: "Poppins, sans-serif" }}
             className="font-bold text-white pl-4"
           >
-            Brand Kiln Task
+            Task Management
           </h1>
         </Link>
       </div>

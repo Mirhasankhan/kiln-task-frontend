@@ -1,21 +1,19 @@
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import TaskModal from "./TaskModal";
-import {
-  useDeleteTaskMutation,
-  useUpdateTaskMutation,
-} from "../../redux/features/task/taskManagement.api";
+import { useUpdateTaskMutation } from "../../redux/features/task/taskManagement.api";
 import Swal from "sweetalert2";
 import { IoMdCheckmark } from "react-icons/io";
-import { TTask } from "./ManageTask";
 import { toast } from "sonner";
+import { TTask } from "../../types/Sidebar.type";
+import axios from "axios";
 
 const SingleTask = ({ task }: { task: TTask }) => {
-  const [deleteTask] = useDeleteTaskMutation();
   const [changeStatus] = useUpdateTaskMutation();
   const handleStatusChange = (id: string) => {
     changeStatus({ id: id, updates: { status: "completed" } });
     toast.success("Task marked as completed");
   };
+
   const handleDeleteTask = (id: string) => {
     Swal.fire({
       title: "Are you sure?",
@@ -25,22 +23,43 @@ const SingleTask = ({ task }: { task: TTask }) => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        deleteTask(id);
-        Swal.fire({
-          title: "Deleted!",
-          text: "Task has been deleted.",
-          icon: "success",
-        });
+        try {
+          const response = await axios.delete(
+            `https://kiln-task-backend.vercel.app/api/v1/tasks/${id}`
+          );
+
+          if (response.status === 200) {
+            Swal.fire({
+              title: "Deleted!",
+              text: "Task has been deleted.",
+              icon: "success",
+            });
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: "Failed to delete the task.",
+              icon: "error",
+            });
+          }
+        } catch (error) {
+          console.error("Error deleting task:", error);
+          Swal.fire({
+            title: "Error!",
+            text: "An error occurred while deleting the task.",
+            icon: "error",
+          });
+        }
       }
     });
   };
+
   return (
     <tr key={task._id}>
       <td>{task.name}</td>
       <td>{task.title}</td>
-      <td>{task.description}</td>
+      <td>{task.priority}</td>
       <td>{task.dueDate}</td>
       <td>{task.status}</td>
       <td className="flex gap-4">
