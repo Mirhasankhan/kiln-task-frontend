@@ -67,6 +67,7 @@ const ManageTask = () => {
             loading={tasks.length > 0 ? false : true}
             dataSource={tableData}
             columns={columns}
+            scroll={{ x: true }}
           />
         ) : (
           <p className="text-red-500 text-center pt-12 text-4xl">
